@@ -4,6 +4,7 @@ param Kind string
 param SKU_Name string
 param accessTier string
 
+// resource for stoage account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: Name
   location: Location
@@ -16,5 +17,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   }
 }
 
+// output for stoage account
 output storageAccountId string = storageAccount.id
 output storageAccountUri string = storageAccount.properties.primaryEndpoints.blob

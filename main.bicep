@@ -12,7 +12,7 @@ param adminPassword string
 param customData string
 param priavteDns string
 
-
+// Virtual Network Module
 module vnet 'modules/vnet.bicep' = {
   name: virtualNetworkName
   params: {
@@ -21,6 +21,7 @@ module vnet 'modules/vnet.bicep' = {
   }
 }
 
+// Subnet Module
 module subnet 'modules/subnets.bicep' = {
   name: Name
   params: {
@@ -29,6 +30,7 @@ module subnet 'modules/subnets.bicep' = {
   }
 }
 
+// Spoke to Hub vnet peering
 module spoketohub 'modules/peering.bicep' = {
   name: 'spoketohub'
   params: {
@@ -38,6 +40,7 @@ module spoketohub 'modules/peering.bicep' = {
   }
 }
 
+// Hub to spoke vnet peering
 module hubtospoke 'modules/peering.bicep' = {
   name: 'hubtospoke'
   params: {
@@ -47,6 +50,7 @@ module hubtospoke 'modules/peering.bicep' = {
   }
 }
 
+// Spoke Virtual Network linking with private dns
 module privateDnsVnetlink 'modules/privateDnsVnetLink.bicep' = {
   name: 'spokevnet'
   params: {
@@ -57,6 +61,7 @@ module privateDnsVnetlink 'modules/privateDnsVnetLink.bicep' = {
   }
 }
 
+// Stroage account for boot diagonstics logs
 module bootdiagonticsSA 'modules/storageAccount.bicep' = {
   name: 'bootdiagonticssa'
   params: {
@@ -68,6 +73,8 @@ module bootdiagonticsSA 'modules/storageAccount.bicep' = {
   }
 }
 
+
+// Network interface for rabbitmq virtual Machine
 module nic 'modules/nic.bicep' = {
   name: 'rabbitmq'
   params: {
@@ -78,6 +85,7 @@ module nic 'modules/nic.bicep' = {
   }
 }
 
+// rabbitmq virtual Machine
 module rabbitmq 'modules/virtualMachine.bicep' = {
   name: 'rabbitmq-vm'
   params: {

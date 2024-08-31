@@ -10,6 +10,7 @@ param disablePasswordAuthentication bool // default false
 param bootDiagnosticsEnabled bool
 param storageUri string
 
+// resource for virtual machine
 resource vm 'Microsoft.Compute/virtualMachines@2024-03-01' = {
   name: Name
   location: Location

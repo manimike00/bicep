@@ -3,6 +3,7 @@ param Location string
 param subnetId string
 param privateIPAllocationMethod string
 
+// resource for nettwork interface
 resource nic 'Microsoft.Network/networkInterfaces@2024-01-01' = {
   name: Name
   location: Location
@@ -21,4 +22,5 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-01-01' = {
   }
 }
 
+// output for nettwork interface
 output nicId string = nic.id
