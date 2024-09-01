@@ -11,6 +11,8 @@ param adminUsername string
 param adminPassword string
 param customData string
 param priavteDns string
+param BlobPriavteDns string
+param bootdiagonticsStoageAccount string
 
 // Virtual Network Module
 module vnet 'modules/vnet.bicep' = {
@@ -61,22 +63,38 @@ module privateDnsVnetlink 'modules/privateDnsVnetLink.bicep' = {
   }
 }
 
-// Stroage account for boot diagonstics logs
-module bootdiagonticsSA 'modules/storageAccount.bicep' = {
-  name: 'bootdiagonticssa'
+// Spoke Virtual Network linking with blob private dns
+module blobprivateDnsVnetlink 'modules/privateDnsVnetLink.bicep' = {
+  name: 'blobspokevnet'
   params: {
-    Name: 'bootdiagonticssa'
-    Location: Location
-    Kind: 'StorageV2'
-    accessTier: 'Hot'
-    SKU_Name: 'Standard_LRS'
+    Name: 'blobspokevnet'
+    priavteDns: BlobPriavteDns
+    registrationEnabled: false
+    virtualNetworkId: vnet.outputs.virtualNetworkId
   }
 }
+
+// Stroage account for boot diagonstics logs
+resource bootdiagonticsSA 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+  name: bootdiagonticsStoageAccount
+}
+// module bootdiagonticsSA 'modules/storageAccount.bicep' = {
+//   name: 'bootdiagonticssa'
+//   params: {
+//     Name: 'bootdiagonticssa'
+//     Location: Location
+//     Kind: 'StorageV2'
+//     accessTier: 'Hot'
+//     SKU_Name: 'Standard_LRS'
+//   }
+// }
+
+
 
 
 // Network interface for rabbitmq virtual Machine
 module nic 'modules/nic.bicep' = {
-  name: 'rabbitmq'
+  name: 'rabbitmq-nic'
   params: {
     Name: 'rabbitmq'
     Location: Location
@@ -89,7 +107,7 @@ module nic 'modules/nic.bicep' = {
 module rabbitmq 'modules/virtualMachine.bicep' = {
   name: 'rabbitmq-vm'
   params: {
-    Name: 'rabbitmq-vm'
+    Name: 'rabbitmq.rapyder.co.in'
     adminUsername: adminUsername
     adminPassword: adminPassword
     customData: customData
@@ -98,6 +116,18 @@ module rabbitmq 'modules/virtualMachine.bicep' = {
     nicId: nic.outputs.nicId
     vmSize: 'Standard_B2ms'
     bootDiagnosticsEnabled: true
-    storageUri: bootdiagonticsSA.outputs.storageAccountUri
+    storageUri: bootdiagonticsSA.properties.primaryEndpoints.blob
+    // storageUri: bootdiagonticsSA.outputs.storageAccountUri
+  }
+}
+
+// rabbitmq domain a record
+module domain 'modules/privateDnsARecord.bicep' = {
+  name: 'rabbitmq-a-record'
+  params: {
+    Name: 'rabbitmq'
+    ttl: 60
+    domain: priavteDns
+    ipv4Address: nic.outputs.nicPrivateIp
   }
 }

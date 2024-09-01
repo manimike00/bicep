@@ -24,3 +24,4 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-01-01' = {
 
 // output for nettwork interface
 output nicId string = nic.id
+output nicPrivateIp string = nic.properties.ipConfigurations[0].properties.privateIPAddress
